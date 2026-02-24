@@ -1,0 +1,49 @@
+name: Build App
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install matplotlib numpy pyinstaller
+
+      - name: Build macOS App
+        if: matrix.os == 'macos-latest'
+        run: |
+          pyinstaller --windowed \
+          --name CityGame \
+          --add-data "FSA Cities.csv:." \
+          --add-data "State Lines.png:." \
+          "FSA Cities.py"
+
+      - name: Build Windows App
+        if: matrix.os == 'windows-latest'
+        run: |
+          pyinstaller --windowed --name CityGame ^
+          --collect-all matplotlib ^
+          --add-data "FSA Cities.csv;." ^
+          --add-data "State Lines.png;." ^
+          "FSA Cities.py"
+
+      - name: Upload Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: CityGame-${{ matrix.os }}
+          path: dist/

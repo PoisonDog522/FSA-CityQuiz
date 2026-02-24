@@ -36,10 +36,11 @@ jobs:
       - name: Build Windows App
         if: matrix.os == 'windows-latest'
         run: |
-          pyinstaller --windowed --name CityGame ^
-          --collect-all matplotlib ^
-          --add-data "FSA Cities.csv;." ^
-          --add-data "State Lines.png;." ^
+          pyinstaller --windowed --name CityGame `
+          --collect-all matplotlib `
+          --hidden-import matplotlib.backends.backend_tkagg `
+          --add-data "FSA Cities.csv;." `
+          --add-data "State Lines.png;." `
           "FSA Cities.py"
 
       - name: Upload Build

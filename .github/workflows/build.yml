@@ -27,7 +27,7 @@ jobs:
       - name: Build macOS App
         if: matrix.os == 'macos-latest'
         run: |
-          pyinstaller --windowed \
+          pyinstaller -y --windowed \
           --name CityGame \
           --add-data "FSA Cities.csv:." \
           --add-data "State Lines.png:." \

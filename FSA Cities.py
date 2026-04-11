@@ -186,7 +186,12 @@ pending_available_states = []
 
 # Loads the city data from the CSV file into lists, and builds lookup dictionaries for efficient searching by city name and city+state.
 def resource_path(relative_path):
-    """ Get absolute path to resource (works for dev and PyInstaller) """
+    # Always prefer local file first
+    local_path = os.path.abspath(relative_path)
+    if os.path.exists(local_path):
+        return local_path
+
+    # Fallback to PyInstaller bundle
     try:
         base_path = sys._MEIPASS
     except Exception:
@@ -790,29 +795,37 @@ def update_smallest10_guessed():
     smallest10_artist.set_fontsize(NEW_FONT_LIST)
 #open csv file and read data into lists
 try:
-    with csv_path.open('r', newline='', encoding='utf-8') as file:
+    try:
+        file = open(csv_path, 'r', newline='', encoding='utf-8', errors='replace')
+    except Exception:
+        file = open(csv_path, 'r', newline='', encoding='cp1252')
+
+    with file:
         cityFile = csv.reader(file)
-        next(cityFile, None)  # Skip the header row
+        next(cityFile, None)
+
         for line in cityFile:
-            if len(line) >= 7:  # Ensure there are enough columns (indexes 0..6)
+            if len(line) >= 7:
                 listOfCityStates.append(line[1].strip())
                 listOfCityClasses.append(line[2].strip())
                 listOfCityNames.append(line[3].strip())
-                # parse population (allow commas); default to 0 on failure
+
                 pop_raw = line[4].strip().replace(',', '')
                 try:
                     listOfCityPops.append(int(pop_raw))
                 except ValueError:
                     listOfCityPops.append(0)
-                # parse latitude and longitude as floats (allow negative values)
+
                 try:
                     listOfCityLats.append(float(line[5].strip()))
-                except (ValueError, IndexError):
+                except:
                     listOfCityLats.append(0.0)
+
                 try:
                     listOfCityLongs.append(float(line[6].strip()))
-                except (ValueError, IndexError):
+                except:
                     listOfCityLongs.append(0.0)
+
 except FileNotFoundError:
     print(f"CSV not found {csv_path}", file=sys.stderr)
 

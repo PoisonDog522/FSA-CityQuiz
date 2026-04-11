@@ -1,0 +1,3 @@
+([('FSA CityQuiz',
+   '/Users/andrewrorex/FSA Cities/dist/FSA CityQuiz',
+   'EXECUTABLE')],)
